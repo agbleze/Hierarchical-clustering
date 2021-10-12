@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Hierarchical clustering analysis
+
+Clustering analysis is one of the important exploratory data analysis you will consider undertaking in order to identify groupings in your dataset. It belongs to the segment of unsupervised classification which draws the data into clusters of similarity. Infact any classification scheme you see has this underpinning of classing a large set of individual elements or whatever is being stuidied into into a small number of class. Take of species classification, the periodic table, development index among others. Remember, it is groups of similarity. This notion also runs in business or rather dominantes business decisions.  Differential pricing, product and market segmentation among others requires identifying the different groups present and tailoring policies that best serves different groups. So clustering analysis is important there!
+
+That being said, there typical two set of clsutering algorithms that are encountered. Namely;
+
+* Hierarchical clustering
+* K-means clustering
+
+In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering 
+
+
+
+In  Sometimes, you would want to do a comparison between different groups
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
