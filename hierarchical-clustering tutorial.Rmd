@@ -22,9 +22,13 @@ Hierarchical clustering are of two types; agglomerative and divisive. The two ar
 * Divisive clustering: also known as DIANA (Divise Analysis) runs in oppsite direction to AGNES. The algorithms starts by disaggregating the root cluster which is the single cluster containing all other clusters into dissimilar clusters at each step until all the dissimilarity between clusters are completely exhausted. Thus, it ends with the leafs which are base clusters entirely dissimilar between each other.
 
 
-So AGNES adds up similar cluster leafs to form a single cluster node and then finally a root while DIANA divides a single cluster root into dissimilar cluster nodes and then finally  cluster leafs. Thus, AGNES is favoured for finding small clusters while DIANA works well for large clusters
+####### So AGNES adds up similar cluster leafs to form a single cluster node and then finally a root while DIANA divides a single cluster root into dissimilar cluster nodes and then finally  cluster leafs. Thus, AGNES is favoured for finding small clusters while DIANA works well for large clusters
 
+### Workflow for hierarchical clustering analysis
+In order to undertake hierarchical clustering; the data has to clean and prepared for that purpose such that variables are comparable. This involve the following;
 
+* Data wraggling and transformation that involves cleaning and standardizing or normalizing the data
+* Calculating dissimilarity distance
 
 
 ```{r}
