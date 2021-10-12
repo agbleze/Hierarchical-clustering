@@ -12,7 +12,17 @@ That being said, there typical two set of clsutering algorithms that are encount
 * Hierarchical clustering
 * K-means clustering
 
-In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering 
+In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering where a tree structure are produced for the clusters - dendrograms.
+
+
+### Hierarchical clustering analysis
+Hierarchical clustering are of two types; agglomerative and divisive. The two are opposed in terms of where drawing of clusters begin from.
+* Agglomerative clsutering (AGNES -Agglomerative Nesting) merges similar clusters beginning from the bottom most similar into nodes and in a sequential manner continue merging them until all clusters form a single root.
+
+* Divisive clustering: also known as DIANA (Divise Analysis) runs in oppsite direction to AGNES. The algorithms starts by disaggregating the root cluster which is the single cluster containing all other clusters into dissimilar clusters at each step until all the dissimilarity between clusters are completely exhausted. Thus, it ends with the leafs which are base clusters entirely dissimilar between each other.
+
+
+So AGNES adds up similar clsuters leafs to form a single cluster node and then finally a root while DIANA 
 
 
 
