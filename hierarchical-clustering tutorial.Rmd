@@ -97,6 +97,7 @@ library(stats)
 library(DT)
 library(skimr)
 library(bslib)
+library(dplyr)
 ```
 
 ### Reading dataset
@@ -129,6 +130,73 @@ Let view the first 100 rows of health_expenditure data object below
 
 ```{r}
 datatable(health_expenditure[1:100, ]) ## view the health_expenditure data 
+```
+
+## Data wangling and transformation
+We have imported and viewed our datasets successfully and now we have to clean, and transform our data to the required format for analysis. Data wangling and transformation activities are not a cast in a stone despite some activities are very common. The type and structure of dataset and analysis we want to perform determines what we need to do.
+
+Looking at our dataset, we need reduce the dataset to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing the piping (%>%) to harness it benefit of logical, clear flow of analysis. This can be achieved with code below for fuel_expenditure.
+
+```{r echo=FALSE}
+fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a variable for onward analysis
+  dplyr::select(state, item_desc, s8q4) %>%  ## select variables needed for analysis
+  dplyr::filter(item_desc %in% c("KEROSENE", "PETROL"))%>% ## filter data to contain only data on kerosene and petrol
+  na.omit()   ## remove missing data (NA)
+datatable(fuel_expenditure_transformed[1:200, ]) ## view the first 200 rows of transformed data
+```
+
+Now you will realize we have reduced the data to only variables that we need. Yet, it is obvious there is still work to be done. First of all, the varaible **state** has meaningless numbers instead of names of states in Nigeria. This was useful data collection and entry but not our analysis where audience have to known state names explicitely. How do we know exactly what these numbers represent? Again, this where our metadata exploration comes to our rescue. When we reviewed the documentation that comes with the data, you will realize that under **state code** the corresponding state names are provided. With this we can add a new column that has the corresponding state names. 
+
+Another issue to note which also influences how to transform our data is that, the number of observation recorded for each state varies. This has to do with data sampling used during data collection. We want to make sure that the state are comparable in terms of expenditure so instead of summarizing with the total expenditure for each state, we will use the mean. With that we will see expenditure of state and not households and we have this captured as labels when we do the clustering so we will convert the column of state names to our row names.
+
+Now, lets code all that we have discuss so far.
+
+```{r}
+fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
+  dplyr::mutate(state_names = case_when(  ## add a new column containing state names
+     state == 1 ~ "Abia",
+     state == 2 ~ "Adamawa",
+     state == 3 ~ "Akwa Ibom",
+     state == 4 ~ "Anambra",
+     state == 5 ~ "Bauchi",
+     state == 6 ~ "Bayelsa",
+     state == 7 ~ "Benue",
+     state == 8 ~ "Borno", 
+     state == 9 ~ "Cross River", 
+     state == 10 ~ "Delta", 
+     state == 11 ~ "Ebonyi", 
+     state == 12 ~ "Edo",
+     state == 13 ~ "Ekiti", 
+     state == 14 ~ "Enugu", 
+     state == 15 ~ "Gombe", 
+     state == 16 ~ "Imo", 
+     state == 17 ~ "Jigawa", 
+     state == 18 ~ "Kaduna", 
+     state == 19 ~ "Kano", 
+     state == 20 ~ "Katsina", 
+     state == 21 ~ "Kebbi",
+     state ==22 ~ "Kogi", 
+     state == 23 ~ "Kwara", 
+     state == 24 ~ "Lagos", 
+     state == 25 ~ "Nasarawa",
+     state == 26 ~ "Niger", 
+     state == 27 ~ "Ogun", 
+     state == 28 ~ "Ondo", 
+     state == 29 ~ "Osun", 
+     state == 30 ~ "Oyo",
+     state == 31 ~ "Plateau", 
+     state == 32 ~ "Rivers", 
+     state == 33 ~ "Sokoto", 
+     state == 34 ~ "Taraba",
+     state == 35 ~ "Yobe",
+     state == 36 ~ "Zamfara", 
+     state == 37 ~ "FCT Abuja")
+   ) %>%
+  dplyr::group_by(state_names)
+
+ fuel_expenditure_transformed <- dplyr::summarize(fuel_expenditure_transformed,mean_fuel_expenditure = mean(s8q4))
+
+datatable(fuel_expenditure_transformed[1:200, ])
 ```
 
 
