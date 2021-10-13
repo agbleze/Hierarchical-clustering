@@ -1,6 +1,11 @@
 ---
 title: "R Notebook"
-output: html_notebook
+#output: html_notebook
+
+output:
+ html_document:
+ theme:
+ bootswatch: solar
 ---
 
 ## Hierarchical clustering analysis
@@ -28,16 +33,104 @@ Hierarchical clustering are of two types; agglomerative and divisive. The two ar
 In order to undertake hierarchical clustering; the data has to clean and prepared for that purpose such that variables are comparable. This involve the following;
 
 * Data wraggling and transformation that involves cleaning and standardizing or normalizing the data
-* Calculating dissimilarity distance
+* Calculating dissimilarity distance between clusters
+
+In measuring dissimilarity between clusters, different methods can be used and are required to specific for using AGNES. The methods are identified as follows;
+* Maximum / complete linkage: uses the highest dissimilarity found between clusters after pairwise calculation of dissimilarities of elements in different clusters.
+
+* Minimum / single linkage: uses the least dissimilarity between clusters following similar method as the complete linkage in calculating dissimilarity
+
+* Mean / average linkage: as the name suggests, uses the average dissimilarity as distance between clusters after computing pairwise dissimilarity between observations in different clusters.
+
+* Centroid linkage: Is based on the dissimilarity between the centroid of clusters.
+
+* Ward’s minimum variance: focus on minimizing the inward cluster difference by merging groups with least between-cluster distance.
+
+The best way to understand workflow and methods identified for computing hierarchical clustering is by practice. So let's take a break from the long discussion and start with the practicals.
+
+## Research objectives
+* To identify states in Nigeria with similar profile on petrol, kerosene and health (excluding insurance) expenditure
+
+## Dataset 
+The dataset to be used for this tutorial is the Living Standards Measurement Study (LSMS) for Nigeria. Specifically, we will use the General Household Survey, Panel 2015-2016 which is the Wave 3. The dataset can be accessed from https://microdata.worldbank.org/index.php/catalog/2734/related-materials
+
+## Known the Metadata of your data
+As part of most data science projects in the real world, alot of background has to be done even before data exploration and analysis. We have covered our first step which is accessing the data. This can even be provided to you by your client or project partner or whoever we are working for. But one thing that we will have to do ourselves is to familiarize oursleves with variable names used, questionnaire administered and its design, how data was collected, units of measurement for the various variables among several others. Understanding these elements will influence how we explore the data, organize it in terms of merging datasets and variables, and analyze it. 
+
+To do this for our dataset we need to look at documentation for the dataset is also available on the site (https://microdata.worldbank.org/index.php/catalog/2734/data-dictionary).
+
+After familiarizing ourselves with the metadata files, it is clear that the variables we want to analyze are in two different files namely sect8b_plantingw3.csv (contains expenditure on various fuels including kerosene and petrol among others) and sect8c_plantingw3.csv (contains expenditure on health). The dataset create opportunity for us to learn key skills of data wrangling and transformation before the actual clustering analysis. This is typical of many project tasks.
+
+## Project Task
+* Tidy data to ensure every row is an observation and every column is a variable
+* Subseting dataset
+* filtering dataset
+* grouping dataset
+* summarizing
+* scaling dataset
+* AGNES clustering
+* DIANA clustering
+* Determining optimal clusters
+* Customizing visualization of clusters
+
+### Packages and libraries used
+Now that we know the tasks we will be undertaking, we have install (if not already installed) the load the needed librabries
+
 
 
 ```{r}
-plot(cars)
+## install librabries if not already available
+# I have commented the code for installation because I have already installed them
+# install.packages("tidyverse")
+# install.packages("cluster")
+# install.packages("factoextra")
+# install.packages("dendextend")
+# install.packages("tidyverse")
+
+## load librabries
+library(readr)
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(stats)
+library(DT)
+library(skimr)
+library(bslib)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+### Reading dataset
+The first thing to do is to import the datasets (hopefully you have downloaded) to be and get a general understanding of it. This can be achieve with the code below
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+```{r message=FALSE}
+library(readr)
+fuel_expenditure <- read_csv("sect8b_plantingw3.csv")  ## load the dataset
+health_expenditure <- read_csv("sect8c_plantingw3.csv") ## load the dataset
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+skim(fuel_expenditure)  ## get the data summary
+skim(health_expenditure) ## get the data summary
+
+```
+
+The skim() function gives us an over of the dataset. We are able to know that there are 10 columns in both the fuel_expenditure and health_expenditure data object. Among others, it gives the mean and number of missing cases of each variable. Depending on the type of variable, that is whether character or numeric, we get different type of summary. Some of the variables are not in their right intended data type. Example, zone, state and lga are numeric instead of being character but that is not the focus here. The variable s8q4 from fuel_expenditure data object has 112727 missing records.
+
+We keep saying the variable and that brings up the question, what does the mean? This is where our earlier exercise of viewing the metadata plays its role. If we indeed went through the various files and questionnaire that comes with the data, we will realize that variable s8q4 (fuel_expenditure data) represents household monthly expenditure in Naire for various items identified in item_desc variable. Likewise, s8q6 (health_expenditure data) represents expenditure for items but this round it is for a 6 month period. 
+
+Our dataset is quite large to be viewed in a table nicely and adequately so we will subset the first 100 rows (remember rows are individual records or observations) and show them in an interactive table using the datatable() function from DT package.
+
+```{r }
+datatable(fuel_expenditure[1:100, ])  ## view the fuel_expenditure data
+```
+
+The fuel_expenditure table above shows that we have more than needed variables for our analysis and we also interested in Petrol and Kerosene data from the item_desc variable. Moreover, the variable names are not understandable. So just by viewing the table, we get to known some data wangling tasks awaiting us. The same can be said for the health_expenditure data object.
+
+
+Let view the first 100 rows of health_expenditure data object below
+
+```{r}
+datatable(health_expenditure[1:100, ]) ## view the health_expenditure data 
+```
+
+
+
 
