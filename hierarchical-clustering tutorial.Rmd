@@ -98,7 +98,7 @@ library(DT)
 library(skimr)
 library(bslib)
 library(dplyr)
-library(formattable)
+library(ape)
 ```
 
 ### Reading dataset
@@ -438,8 +438,15 @@ tanglegram(dend1 = agnes_complete_dendrogram, dend2 = agnes_ward_dendrogram,
            highlight_branches_col = T,
            main_left = "Agglomerative Nesting (complete method)",
            main_right = "Agglomerative Nesting (ward method)",
-           cex_main_left = 0.7,
-           cex_main = 0.6,
+           sub = "Expenditure on Petrol, Kerosene and Health -States in Nigeria",
+     #      rank_branches = T,
+    #       sort = T,
+           cex_main_left = 0.9,
+           cex_main = 0.7,
+    cex_sub = 0.6,
+    #margin_bottom = 1,
+    #       hang = T,
+    margin_inner = 5,
            main = paste("Entanglement = ", round(entanglement(dend_list_agnes_complete_ward), 2)))
 
 agnes_complete_dendrogram
@@ -449,3 +456,47 @@ agnes_complete_dendrogram
 
 We have added entanglement co-efficient to the graph. It measures how well align the trees on a scale of 1 to 0. The low co-oefficient of 0.17 shows least entanglement with good alignment
 
+### Determining optimal clusters
+A number of methods can be used to determine the optimal of clusters for grouping
+
+#### Elbow method of determing optimal clusters
+fviz_nbclust(health_expense_scaled, FUN = hcut, method = "wss")
+
+```{r}
+fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "wss")
+```
+To determine optimal cluster with elbow method, we need to look at where a bend is located which can be gauged to 3 from the graph above.
+
+### Average silhouette method
+Average silhouette methods indicates the how well the clusters form with within cluster difference minimized at the optimal cluster number. Thus, the higher the average cluster with the better the clustering for different number of clusters.
+
+```{r}
+fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "silhouette")
+```
+From the plot, the optimal number of clusters specified by average silhouette method is 3.
+
+## gap statistics method
+
+```{r}
+dataset_gapstat <- clusGap(dataset_all_scaled, FUN = hcut, K.max = 10)
+
+fviz_gap_stat(dataset_gapstat)
+```
+
+The gaps method identified 1 to be the optimal number of clusters within a range of 1 to 10 clusters. Well, as we can deduce, different methods can identify different number of clusters. With 2 of the methods suggesting 3 to be the optimal number of clusters, we can go by that. 
+
+Now that we know the optimal cluster number, let use that to visualize the data but in a different way from the previous
+
+```{r}
+
+# Cut the dendrogram into 4 clusters
+colors = c("brown", "orange", "#1DEfbb", "yellow")
+# plot(as.phylo(hc), type = "fan", tip.color = colors[clus4],
+#      label.offset = 1, cex = 0.7)
+
+ward_cut <- cutree(hcl_complete, k = 3)
+plot(as.phylo(hcl_complete), type = "fan", tip.color = colors[ward_cut], label.offset = .5, cex = 0.7, no.margin = T, use.edge.length = T)
+```
+
+## Conclusion
+This tutorial demonstrate hierarchical clustering us a project that is typical of the real world. We went through process of data wrangling and transformation, clustering and determining the optimal clustering.
