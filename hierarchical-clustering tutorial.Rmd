@@ -98,6 +98,7 @@ library(DT)
 library(skimr)
 library(bslib)
 library(dplyr)
+library(formattable)
 ```
 
 ### Reading dataset
@@ -192,13 +193,259 @@ fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
      state == 36 ~ "Zamfara", 
      state == 37 ~ "FCT Abuja")
    ) %>%
-  dplyr::group_by(state_names)
+  tidyr::pivot_wider(names_from = item_desc, values_from = s8q4, values_fn = mean)
 
- fuel_expenditure_transformed <- dplyr::summarize(fuel_expenditure_transformed,mean_fuel_expenditure = mean(s8q4))
-
-datatable(fuel_expenditure_transformed[1:200, ])
+datatable(fuel_expenditure_transformed)
 ```
 
 
+Now the fuel_expenditure data has been transformed, we need to make sure that the second data is also transform to be in the same quality level or format. Remember that health_expenditure is for 6 months which means that in order to comparing data of the same time scale, we need to convert it to monthly data and then calculate the mean. 
 
+The code code to transform health expenditure is below;     
+
+```{r error=FALSE}
+health_expenditure_transformed <- health_expenditure %>%
+  dplyr::select(state, item_desc, s8q6)%>%
+  dplyr::filter(item_desc %in% "HEALTH EXPENDITURES (EXCLUDING") %>%
+  na.omit() %>%
+   dplyr::mutate(state_names = case_when(
+     state == 1 ~ "Abia",
+     state == 2 ~ "Adamawa",
+     state == 3 ~ "Akwa Ibom",
+     state == 4 ~ "Anambra",
+     state == 5 ~ "Bauchi",
+     state == 6 ~ "Bayelsa",
+     state == 7 ~ "Benue",
+     state == 8 ~ "Borno",
+     state == 9 ~ "Cross River",
+     state == 10 ~ "Delta",
+     state == 11 ~ "Ebonyi",
+     state == 12 ~ "Edo",
+     state == 13 ~ "Ekiti",
+     state == 14 ~ "Enugu",
+     state == 15 ~ "Gombe",
+     state == 16 ~ "Imo",
+     state == 17 ~ "Jigawa",
+     state == 18 ~ "Kaduna",
+     state == 19 ~ "Kano",
+     state == 20 ~ "Katsina",
+     state == 21 ~ "Kebbi",
+     state ==22 ~ "Kogi",
+     state == 23 ~ "Kwara",
+     state == 24 ~ "Lagos",
+     state == 25 ~ "Nasarawa",
+     state == 26 ~ "Niger",
+     state == 27 ~ "Ogun",
+     state == 28 ~ "Ondo",
+     state == 29 ~ "Osun",
+     state == 30 ~ "Oyo",
+     state == 31 ~ "Plateau",
+     state == 32 ~ "Rivers",
+     state == 33 ~ "Sokoto",
+     state == 34 ~ "Taraba",
+     state == 35 ~ "Yobe",
+     state == 36 ~ "Zamfara",
+     state == 37 ~ "FCT Abuja")
+   ) %>%
+  dplyr::group_by(state_names) 
+
+  health_expenditure_transformed <- dplyr::summarize(health_expenditure_transformed, Monthly_mean_health_expenditure = mean(s8q6/6))
+ 
+ datatable(health_expenditure_transformed)
+ 
+```
+
+Now, we have transformed both datasets and we need verify if they are equal in terms of number of rows and columns before joining together for further analysis.
+
+```{r}
+nrow(fuel_expenditure_transformed)
+nrow(health_expenditure_transformed)
+```
+We realize that the number of rows are different for fuel_expenditure-transformed (37) and health_expenditure_transformed (36). 
+This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for  Jigawa state. This is an instance of where we are faced with the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state at of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for all datasets and then join them together as well as convert the column **state_names** to row names as this is what will be used to label the cluster leafs to be more meaningful. The code for that is as follows;
+
+
+```{r}
+# fuel_expenditure_transformed <- fuel_expenditure_transformed[!(fuel_expenditure_transformed$state == 17)] #%>%
+#   #dplyr::filter(fuel_expenditure_transformed, fuel_expenditure_transformed$state_names != "Jigawa") 
+dataset_all <- subset.data.frame(fuel_expenditure_transformed, fuel_expenditure_transformed$state != 17) %>%
+  dplyr::left_join(health_expenditure_transformed) %>%  ## join the two datasets
+  tibble::column_to_rownames(var = "state_names") %>% ## transform variable state_names to rownames
+  select(-1) ## select all columns except the first one (state) which we don't need again
+
+datatable(dataset_all)
+
+ # expenditure_all <- left_join(fuel_expenditure_transformed, health_expenditure_transformed, by = state_names)
+ # datatable(expenditure_all)
+```
+
+Now our data is already and prepared for analysis. But before then, we have to do clustering relevant data preparation
+
+#### Clustering relevant data preparation
+The data preparation done at this stage is not one that we will do for all analysis. We are doing them in order to successfully do a cluster analysis that is appropriate.
+
+* Data standardization: Before apply various clustering algorithms, we need to standardize the data to have  mean zero and standard deviation one. This is done to make our variables have a common scale hence comparable.
+
+* Computation of dissimilarity matrix: This is done identify observations that can belong to the same clusters. 
+
+Now, lets write our code for that;
+
+```{r}
+## scale the data
+ dataset_all_scaled <- scale(dataset_all)
+ 
+ ## cal dissimilarity matrix
+ dataset_dissimilarity <- dist(dataset_all_scaled, method = "euclidean")
+```
+
+
+We will use all the clustering methods we have discussed above and compare the results. 
+
+### Agglomerative clustering (AGNES)
+Agglomerative clustering can be undertaken using hclust(), flashClust or agnes()
+
+```{r}
+## hierarchical clustering wtih complete linkage
+hcl_complete<-  hclust(dataset_dissimilarity, method = "complete")
+ 
+plot(hcl_complete, cex = 0.6, hang = -1) 
+
+
+
+```
+
+Using agnes function gives us the agglomerative co-efficent (ac) which is measures the level of clustering. The higher the ac, the stronger the clustering structure.
+
+```{r}
+## agnes clustering
+agnes_complete <- agnes(dataset_dissimilarity, method = "complete")
+
+plot(agnes_complete)
+
+```
+
+Now, let all the methods we have discuss for AGNES.
+
+```{r}
+## compute agnes clustering with various methods
+agnes_single <- agnes(dataset_dissimilarity, method = "single")
+agnes_average <- agnes(dataset_dissimilarity, method = "average")
+agnes_ward <- agnes(dataset_dissimilarity, method = "ward")
+#agnes_centriod <- agnes(dataset_dissimilarity, method = "median")
+
+#Plot results
+plot(agnes_single)
+plot(agnes_average)
+plot(agnes_ward)
+#plot(agnes_centriod)
+
+```
+
+From the various methods, agnes with the ward produces an ac of 0.9 which is the highest compared to others hence produces the strongest structure for the dataset.
+
+
+Before we draw the curtains down on agnes, let also note the hcluster() fucntion also accepts other methods for clustering such as the following
+
+```{r}
+
+hclust_mcquitty <- hclust(dataset_dissimilarity, method = "mcquitty")
+hclust_median <- hclust(dataset_dissimilarity, method = "median")
+hclust_centriod <- hclust(dataset_dissimilarity, method = "centroid")
+
+plot(hclust_mcquitty, cex = 0.6, hang = -1)
+plot(hclust_median, cex = 0.6, hang = -1)
+plot(hclust_centriod, cex = 0.6, hang = -1)
+```
+
+```{r}
+
+#### divisive clustering
+# compute divisive hierarchical clustering
+divisive_cluster <- cluster::diana(dataset_dissimilarity)
+
+# divisive coeffieict amount of clustering structure found
+divisive_cluster$dc
+
+#plot dendrogram for divisive clustering
+pltree(divisive_cluster, cex = 0.6, hang = .2, main = "Dendrogram of diana")
+divisive_cluster$dc
+```
+
+```{r}
+try.diss.div <- diana(dataset_dissimilarity)
+pltree(try.diss.div, cex = 0.6, hang = .2)
+try.diss.div$dc
+try.diss.div$order.lab
+
+```
+
+#### Identifying clusters of subgroups
+We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. Lets cuts our observation into 4 clusters with the code below. This can be done for both agnes and divise
+
+```{r}
+
+## identify subgroups
+
+# CUT TREE INTO 5 GROUPS
+hcl_complete_group <- cutree(hcl_complete, k = 5)
+
+### Number of members in each cluster
+table(hcl_complete_group)
+##add cluster groupings to data
+dataset_all_cluster <- dataset_all%>%
+  mutate(cluster = hcl_complete_group) %>%
+  head()
+
+```
+
+we can visualize how the various state are grouped when we cut into 5 clusters using the code below
+
+```{r}
+## visualize with fviz_cluster
+fviz_cluster(list(data = dataset_all_scaled, cluster = hcl_complete_group))
+
+```
+
+
+### Comparing dendrograms
+ We can compare the various clustering for different methods by creating dendrogram objects for them and
+ plotting to compare
+ 
+```{r}
+
+agnes_complete_dendrogram <- as.dendrogram(agnes_complete)
+agnes_ward_dendrogram <- as.dendrogram(agnes_ward)
+
+### plot the dendrograms to compare and match
+tanglegram(agnes_complete_dendrogram, agnes_ward_dendrogram)
+
+
+```
+The dashed lines shows cluster combinations different from those in the other tree. 
+
+#### customizing the dendrogram
+Visualizing results has never become less important for cluster analysis where observations are group and there is the need for more colourful differentiation of groups to better understand the visualization. There are options to for this.
+# First we can chain multiple dendrograms together to customize them easily
+
+```{r}
+# create a dendlist
+dend_list_agnes_complete_ward <- dendlist(agnes_complete_dendrogram, agnes_ward_dendrogram)
+
+tanglegram(dend1 = agnes_complete_dendrogram, dend2 = agnes_ward_dendrogram,
+           highlight_distinct_edges = T, # Turn off dashed lines
+           common_subtrees_color_lines = TRUE, # turn-off line colors
+           common_subtrees_color_branches = TRUE, # color common branches
+           highlight_branches_col = T,
+           main_left = "Agglomerative Nesting (complete method)",
+           main_right = "Agglomerative Nesting (ward method)",
+           cex_main_left = 0.7,
+           cex_main = 0.6,
+           main = paste("Entanglement = ", round(entanglement(dend_list_agnes_complete_ward), 2)))
+
+agnes_complete_dendrogram
+ 
+```
+
+
+We have added entanglement co-efficient to the graph. It measures how well align the trees on a scale of 1 to 0. The low co-oefficient of 0.17 shows least entanglement with good alignment
 
