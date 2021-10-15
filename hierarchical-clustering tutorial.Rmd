@@ -1,8 +1,11 @@
 ---
-title: Hierarchical clustering -- Which states in Nigeria have similar expenditure profile?
+title: Hierarchical clustering -- Which states in Nigeria have similar expenditure
+  profile?
 author: "Linus Agbleze"
 output:
-  html_document: 
+  pdf_document:
+    toc: yes
+  html_document:
     toc: yes
     highlight: espresso
     fig_width: 8
@@ -10,13 +13,12 @@ output:
     fig_caption: yes
     keep_md: yes
     df_print: default
-#    code_folding: show
     theme:
-      color-contrast-warnings: false
-      bg: "#202123"
-      fg: "#B8BCC2"
-      primary: "#EA80FC"
-      secondary: "#00DAC6"
+      color-contrast-warnings: no
+      bg: '#202123'
+      fg: '#B8BCC2'
+      primary: '#EA80FC'
+      secondary: '#00DAC6'
       base_font:
         google: Prompt
       heading_font:
@@ -107,7 +109,7 @@ After familiarizing ourselves with the metadata files, it is clear that the vari
 
 Now that we know the tasks we will be undertaking, we have to install (if not already installed) and load the  libraries needed
 
-```{r message=FALSE}
+```{r lib-load, message=FALSE}
 ## install librabries if not already available
 ### I have commented the code for installation because I have already installed them
 # install.packages("tidyverse")
@@ -136,7 +138,7 @@ library(ape)  ## to visualize dendrograms
 
 The first thing to do is to import the datasets (hopefully you have downloaded them) and get a general understanding of it. This can be achieve with the code below
 
-```{r message=FALSE}
+```{r data-load, message=FALSE}
 fuel_expenditure <- read_csv("sect8b_plantingw3.csv")  ## load the dataset
 health_expenditure <- read_csv("sect8c_plantingw3.csv") ## load the dataset
 
@@ -151,7 +153,7 @@ We keep saying the variable and that brings up the question, what does the varia
 
 Our dataset is quite large to be viewed in a table nicely and adequately so we will subset the first 100 rows (remember rows are individual records or observations) and show them in an interactive table using the datatable() function from DT package.
 
-```{r }
+```{r data-display}
 datatable(fuel_expenditure[1:100, ])  ## view the first 100 observations in fuel_expenditure data
 ```
 
@@ -170,7 +172,7 @@ We have imported and viewed our datasets successfully and now we have to clean, 
 
 Looking at our dataset, we need to reduce the dataset to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing piping approach (%>%) to harness its benefit of logical and clear flow of analysis. This can be achieved with the code below for fuel_expenditure.
 
-```{r echo=FALSE}
+```{r fuel-data-clean, echo=FALSE}
 fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a variable for onward analysis
   dplyr::select(state, item_desc, s8q4) %>%  ## select variables needed for analysis
   dplyr::filter(item_desc %in% c("KEROSENE", "PETROL"))%>% ## filter data to contain only data on kerosene and petrol
@@ -184,7 +186,7 @@ Another issue to note, which also influences how to transform our data is that, 
 
 Now, lets code all that we have discussed so far.
 
-```{r}
+```{r fuel-data-mutate}
 fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
   dplyr::mutate(state_names = case_when(  ## add a new column containing state names
      state == 1 ~ "Abia",
@@ -234,7 +236,7 @@ After cleaning and transforming fuel_expenditure data, we need to make sure that
 
 The code to transform health expenditure is below;
 
-```{r error=FALSE}
+```{r health-data-wrang, error=FALSE}
 health_expenditure_transformed <- health_expenditure %>%
   dplyr::select(state, item_desc, s8q6)%>%
   dplyr::filter(item_desc %in% "HEALTH EXPENDITURES (EXCLUDING") %>%
@@ -288,14 +290,14 @@ health_expenditure_transformed <- health_expenditure %>%
 
 Now, we have transformed both datasets and we need to verify if they are equal in terms of number of rows and columns before joining together for further analysis.
 
-```{r}
+```{r nrow-find}
 nrow(fuel_expenditure_transformed)
 nrow(health_expenditure_transformed)
 ```
 
 We will realize that the number of rows are different for fuel_expenditure_transformed (37) and health_expenditure_transformed (36). This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for Jigawa state. This is an instance where we are face the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state out of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for all datasets and then join them together. Then, we will convert the column **state_names** to row names for labeling the cluster leafs to be more meaningful. The code to achieve that is as follows;
 
-```{r}
+```{r data-join}
 dataset_all <- subset.data.frame(fuel_expenditure_transformed, fuel_expenditure_transformed$state != 17) %>%
   dplyr::left_join(health_expenditure_transformed) %>%  ## join the two datasets
   tibble::column_to_rownames(var = "state_names") %>% ## transform variable state_names to rownames
@@ -316,7 +318,7 @@ The data preparation done at this stage is not one that we will do for all type 
 
 Now, lets write our code for that;
 
-```{r}
+```{r dissimilarity}
 ## scale the data
  dataset_all_scaled <- scale(dataset_all)
  
@@ -331,7 +333,7 @@ We will use all the clustering methods we have discussed above and compare the r
 
 Agglomerative nesting can be undertaken using hclust(), flashClust or agnes()
 
-```{r}
+```{r hcl-complete}
 ## hierarchical clustering wtih complete linkage
 hcl_complete<-  hclust(dataset_dissimilarity, method = "complete")
  
@@ -340,7 +342,7 @@ plot(hcl_complete, cex = 0.6, hang = -1)
 
 Using agnes function gives us the agglomerative co-efficent (ac) which measures the strength of clustering. The higher the ac, the stronger the clustering structure.
 
-```{r}
+```{r agnes-comp}
 ## agnes clustering
 agnes_complete <- agnes(dataset_dissimilarity, method = "complete")
 
@@ -349,7 +351,7 @@ plot(agnes_complete)
 
 Now, lets look at other methods we have discussed for AGNES.
 
-```{r}
+```{r agnes-method}
 ## compute agnes clustering with various methods
 agnes_single <- agnes(dataset_dissimilarity, method = "single")
 agnes_average <- agnes(dataset_dissimilarity, method = "average")
@@ -365,7 +367,7 @@ From the various methods, agnes with the ward method produces an ac of 0.9 which
 
 Before we draw the curtains down on agnes, lets also note that hcluster() function also accepts other methods
 
-```{r}
+```{r hcl-methods}
 hclust_mcquitty <- hclust(dataset_dissimilarity, method = "mcquitty")
 hclust_median <- hclust(dataset_dissimilarity, method = "median")
 hclust_centriod <- hclust(dataset_dissimilarity, method = "centroid")
@@ -379,7 +381,7 @@ plot(hclust_centriod, cex = 0.6, hang = -1)
 ## Divisive clustering 
 Divisive clustering does not require a method argument to be specified. Lets analyze the data using diana()
 
-```{r}
+```{r divisive-hcl}
 #### divisive clustering
 # computes divisive hierarchical clustering
 divisive_cluster <- cluster::diana(dataset_dissimilarity)
@@ -396,7 +398,7 @@ divisive_cluster$dc
 
 We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. Lets cut our observation into 5 clusters with the code below. This can be done for both agnes and divise
 
-```{r}
+```{r cut-grp}
 # CUT TREE INTO 5 GROUPS
 hcl_complete_group <- cutree(hcl_complete, k = 5)
 
@@ -411,7 +413,7 @@ dataset_all_cluster <- dataset_all%>%
 
 We can visualize how the various state are grouped when we cut into 5 clusters using the code below
 
-```{r}
+```{r viz-clust}
 ## visualize with fviz_cluster
 fviz_cluster(list(data = dataset_all_scaled, cluster = hcl_complete_group))
 ```
@@ -420,7 +422,7 @@ fviz_cluster(list(data = dataset_all_scaled, cluster = hcl_complete_group))
 
 We can compare the various clustering for different methods by creating dendrogram objects for them and plotting to compare
 
-```{r}
+```{r tangle-plot}
 ### create dendrogram object
 agnes_complete_dendrogram <- as.dendrogram(agnes_complete)
 agnes_ward_dendrogram <- as.dendrogram(agnes_ward)
@@ -468,7 +470,7 @@ A number of methods can be used to determine the optimal number of clusters for 
 #### Elbow method of determing optimal number of clusters
 To determine optimal number of clusters with elbow method, we need to look at where the bend is located which can be gauged to be 3 from our analysis below 
 
-```{r}
+```{r elbow-method}
 fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "wss")
 ```
 
@@ -477,7 +479,7 @@ fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "wss")
 
 Average silhouette method indicates how well the clusters form with within cluster difference minimized at the optimal cluster number. Thus, the highest average silhouette width corresponds to the optimal number of clusters.
 
-```{r}
+```{r silhoutte-method}
 fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "silhouette")
 ```
 
@@ -485,7 +487,7 @@ From the plot above, the optimal number of clusters is 3.
 
 #### Gap statistics method
 
-```{r}
+```{r gap-stat-method}
 dataset_gapstat <- clusGap(dataset_all_scaled, FUN = hcut, K.max = 10)
 
 fviz_gap_stat(dataset_gapstat)
@@ -495,7 +497,7 @@ The gaps method identified 1 to be the optimal number of clusters within a range
 
 Now that we know the optimal number of clusters, lets use that to visualize the data but in a way different from the previous.
 
-```{r}
+```{r fan-dendrogram}
 # Cut the dendrogram into 4 clusters
 colors = c("brown", "orange", "#1DEfbb", "yellow")
 
