@@ -2,8 +2,14 @@
 title: Hierarchical clustering -- Which states in Nigeria have similar expenditure profile?
 author: "Linus Agbleze"
 output:
-  html_document:
-    toc: TRUE
+  html_document: 
+    toc: yes
+    highlight: espresso
+    fig_width: 8
+    fig_height: 6
+    fig_caption: yes
+    keep_md: yes
+    df_print: default
 #    code_folding: show
     theme:
       color-contrast-warnings: false
@@ -65,6 +71,7 @@ In measuring dissimilarity between clusters, different methods can be used and h
 The best way to understand the workflow and methods identified for computing hierarchical clustering is by practicing with a project. We are going to define a simple research that clustering analysis can be used for and go through the complete pipeline required to execute it. 
 
 So let's take a break from the long discussion and start with  practicals.
+
 
 ## Research objective
 
@@ -155,6 +162,7 @@ Let view the first 100 rows of health_expenditure data.
 ```{r}
 datatable(health_expenditure[1:100, ]) ## view the health_expenditure data 
 ```
+
 
 ## Data wrangling and transformation
 
@@ -318,6 +326,7 @@ Now, lets write our code for that;
 
 We will use all the clustering methods we have discussed above and compare the results.
 
+
 ## Agglomerative Nesting (AGNES)
 
 Agglomerative nesting can be undertaken using hclust(), flashClust or agnes()
@@ -365,6 +374,7 @@ plot(hclust_mcquitty, cex = 0.6, hang = -1)
 plot(hclust_median, cex = 0.6, hang = -1)
 plot(hclust_centriod, cex = 0.6, hang = -1)
 ```
+
 
 ## Divisive clustering 
 Divisive clustering does not require a method argument to be specified. Lets analyze the data using diana()
@@ -425,7 +435,7 @@ The dashed lines shows cluster combinations different from those in the other tr
 
 Visualizing results has never been less important for cluster analysis where observations are grouped and there is the need for more colourful differentiation of groups to better understand the results presented. There are options for this. First, we can chain multiple dendrograms together to customize them easily.
 
-```{r}
+```{r customize-dendro, fig.height=6, fig.width=8}
 # create a dendlist
 dend_list_agnes_complete_ward <- dendlist(agnes_complete_dendrogram, agnes_ward_dendrogram)
 
@@ -437,9 +447,10 @@ tanglegram(dend1 = agnes_complete_dendrogram, dend2 = agnes_ward_dendrogram,
            main_left = "Agglomerative Nesting (complete method)",
            main_right = "Agglomerative Nesting (ward method)",
            sub = "Expenditure on Petrol, Kerosene and Health -States in Nigeria",
-           cex_main_left = 0.9,
-           cex_main = 0.7,
-            cex_sub = 0.6,
+           cex_main_left = 1.1,
+           cex_main = 0.8,
+            cex_sub = .6,
+           lab.cex = 1,
             margin_inner = 5,
            main = paste("Entanglement = ", round(entanglement(dend_list_agnes_complete_ward), 2)))
 
@@ -448,6 +459,7 @@ agnes_complete_dendrogram
 ```
 
 We have added entanglement co-efficient to the graph. It measures how well align the trees are on a scale of 1 to 0. The low co-oefficient of 0.17 indicates least entanglement with good alignment.
+
 
 ## Determining optimal number of clusters
 
