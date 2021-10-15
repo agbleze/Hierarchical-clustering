@@ -1,142 +1,166 @@
 ---
-title: "R Notebook"
-#output: html_notebook
-
+title: Hierarchical clustering -- Which states in Nigeria have similar expenditure profile?
+author: "Linus Agbleze"
 output:
- html_document:
- theme:
- bootswatch: solar
+  html_document:
+    toc: TRUE
+#    code_folding: show
+    theme:
+      color-contrast-warnings: false
+      bg: "#202123"
+      fg: "#B8BCC2"
+      primary: "#EA80FC"
+      secondary: "#00DAC6"
+      base_font:
+        google: Prompt
+      heading_font:
+        google: Proza Libre
 ---
+
+## Introduction to clustering analysis
+
+Clustering analysis is one of the important exploratory data analysis you will consider undertaking in order to identify groupings in your dataset. It belongs to the segment of unsupervised classification which draws the data into clusters of similarity. Infact, many classification schemes have this underpinning of classing a large set of individual elements or observations into a small number of class. Talk of species classification, the periodic table, development index among others. Remember, it is groups of similarity. This notion also runs in business or rather dominates business decisions. Differential pricing, product and market segmentation among others requires identifying the different groups present and tailoring policies that best serves each of them. So clustering analysis is important there!
+
+That being said, there are typically two set of clustering techniques that are used to identify groups of similarity. Namely;
+
+-   Hierarchical clustering
+-   K-means clustering
+
+In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering where a tree structure are produced for the clusters -- dendrograms.
 
 ## Hierarchical clustering analysis
 
-Clustering analysis is one of the important exploratory data analysis you will consider undertaking in order to identify groupings in your dataset. It belongs to the segment of unsupervised classification which draws the data into clusters of similarity. Infact any classification scheme you see has this underpinning of classing a large set of individual elements or whatever is being stuidied into into a small number of class. Take of species classification, the periodic table, development index among others. Remember, it is groups of similarity. This notion also runs in business or rather dominantes business decisions.  Differential pricing, product and market segmentation among others requires identifying the different groups present and tailoring policies that best serves different groups. So clustering analysis is important there!
+Hierarchical clustering is of two types; agglomerative nesting and divisive analysis. The two are opposed in terms of where formation of clusters begin from. 
 
-That being said, there typical two set of clsutering algorithms that are encountered. Namely;
+* Agglomerative Nesting (AGNES) merges similar clusters beginning from the bottom-most into nodes and in a sequential manner continue merging them until all clusters form a single root at the top of the tree.
 
-* Hierarchical clustering
-* K-means clustering
+* Divisive clustering also known as DIANA (Divise Analysis) runs in opposite direction to AGNES. The algorithm starts by disaggregating the root cluster which is the single cluster containing all other clusters into dissimilar clusters at each step (with each cluster being internally similar) until all the dissimilarity between clusters are completely exhausted. Thus, it ends with the leafs which are  clusters at the bottom entirely dissimilar to each other.
 
-In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering where a tree structure are produced for the clusters - dendrograms.
+**So AGNES adds up similar cluster leafs to form a cluster node and then a root while DIANA divides a single cluster root into dissimilar cluster nodes and then finally cluster leafs. Thus, AGNES is favoured for finding small clusters while DIANA works well for large clusters.**
 
+#### Workflow for hierarchical clustering analysis
 
-### Hierarchical clustering analysis
-Hierarchical clustering are of two types; agglomerative and divisive. The two are opposed in terms of where drawing of clusters begin from.
-* Agglomerative clsutering (AGNES -Agglomerative Nesting) merges similar clusters beginning from the bottom most similar into nodes and in a sequential manner continue merging them until all clusters form a single root.
+In order to undertake hierarchical clustering; the data has to be cleaned and prepared for that purpose such that variables are comparable. This involve the following;
 
-* Divisive clustering: also known as DIANA (Divise Analysis) runs in oppsite direction to AGNES. The algorithms starts by disaggregating the root cluster which is the single cluster containing all other clusters into dissimilar clusters at each step until all the dissimilarity between clusters are completely exhausted. Thus, it ends with the leafs which are base clusters entirely dissimilar between each other.
+-   Data wraggling and transformation that results in a tidy data such that;
+      * Each column is a variable
+      * Each row is a recording or observation
+      * Each cell is a data
 
+- Standardizing / scaling the data
+- Calculating dissimilarity measure between clusters
 
-####### So AGNES adds up similar cluster leafs to form a single cluster node and then finally a root while DIANA divides a single cluster root into dissimilar cluster nodes and then finally  cluster leafs. Thus, AGNES is favoured for finding small clusters while DIANA works well for large clusters
+In measuring dissimilarity between clusters, different methods can be used and have to specified for AGNES. The methods are identified as follows; 
 
-### Workflow for hierarchical clustering analysis
-In order to undertake hierarchical clustering; the data has to clean and prepared for that purpose such that variables are comparable. This involve the following;
-
-* Data wraggling and transformation that involves cleaning and standardizing or normalizing the data
-* Calculating dissimilarity distance between clusters
-
-In measuring dissimilarity between clusters, different methods can be used and are required to specific for using AGNES. The methods are identified as follows;
 * Maximum / complete linkage: uses the highest dissimilarity found between clusters after pairwise calculation of dissimilarities of elements in different clusters.
 
-* Minimum / single linkage: uses the least dissimilarity between clusters following similar method as the complete linkage in calculating dissimilarity
+-   Minimum / single linkage: uses the least dissimilarity between clusters following similar method as the complete linkage in calculating dissimilarity
 
-* Mean / average linkage: as the name suggests, uses the average dissimilarity as distance between clusters after computing pairwise dissimilarity between observations in different clusters.
+-   Mean / average linkage: as the name suggests, uses the average dissimilarity as distance between clusters after computing pairwise dissimilarity between observations in different clusters.
 
-* Centroid linkage: Is based on the dissimilarity between the centroid of clusters.
+-   Centroid linkage: Is based on the dissimilarity between the centroid of clusters.
 
-* Ward’s minimum variance: focus on minimizing the inward cluster difference by merging groups with least between-cluster distance.
+-   Ward's minimum variance: focus on minimizing the inward cluster difference by merging groups with least between-cluster distance.
 
-The best way to understand workflow and methods identified for computing hierarchical clustering is by practice. So let's take a break from the long discussion and start with the practicals.
+The best way to understand the workflow and methods identified for computing hierarchical clustering is by practicing with a project. We are going to define a simple research that clustering analysis can be used for and go through the complete pipeline required to execute it. 
 
-## Research objectives
-* To identify states in Nigeria with similar profile on petrol, kerosene and health (excluding insurance) expenditure
+So let's take a break from the long discussion and start with  practicals.
 
-## Dataset 
-The dataset to be used for this tutorial is the Living Standards Measurement Study (LSMS) for Nigeria. Specifically, we will use the General Household Survey, Panel 2015-2016 which is the Wave 3. The dataset can be accessed from https://microdata.worldbank.org/index.php/catalog/2734/related-materials
+## Research objective
 
-## Known the Metadata of your data
-As part of most data science projects in the real world, alot of background has to be done even before data exploration and analysis. We have covered our first step which is accessing the data. This can even be provided to you by your client or project partner or whoever we are working for. But one thing that we will have to do ourselves is to familiarize oursleves with variable names used, questionnaire administered and its design, how data was collected, units of measurement for the various variables among several others. Understanding these elements will influence how we explore the data, organize it in terms of merging datasets and variables, and analyze it. 
+-   To identify states in Nigeria with similar expenditure profile on petrol, kerosene and health (excluding insurance)
 
-To do this for our dataset we need to look at documentation for the dataset is also available on the site (https://microdata.worldbank.org/index.php/catalog/2734/data-dictionary).
+## Dataset
 
-After familiarizing ourselves with the metadata files, it is clear that the variables we want to analyze are in two different files namely sect8b_plantingw3.csv (contains expenditure on various fuels including kerosene and petrol among others) and sect8c_plantingw3.csv (contains expenditure on health). The dataset create opportunity for us to learn key skills of data wrangling and transformation before the actual clustering analysis. This is typical of many project tasks.
+The dataset to be used for this tutorial is the Living Standard Measurement Study (LSMS) for Nigeria. Specifically, we will use the General Household Survey, 2015-2016 Panel data which is the Wave 3. The dataset can be accessed from <https://microdata.worldbank.org/index.php/catalog/2734/related-materials>
 
-## Project Task
-* Tidy data to ensure every row is an observation and every column is a variable
-* Subseting dataset
-* filtering dataset
-* grouping dataset
-* summarizing
-* scaling dataset
-* AGNES clustering
-* DIANA clustering
-* Determining optimal clusters
-* Customizing visualization of clusters
+#### Know the Metadata of your data
 
-### Packages and libraries used
-Now that we know the tasks we will be undertaking, we have install (if not already installed) the load the needed librabries
+As part of most data science projects in the real world, background checks has to be done even before data exploration and analysis. We have covered our first step which is accessing the data. The data can even be provided to us by our client or project partner or whoever we are working for. But one thing that we will have to do ourselves is to familiarize ourselves with variable names used, questionnaire administered and its design, how data was collected, units of measurement for the various variables among several others. Understanding these elements will influence how we explore the data, organize it in terms of merging datasets and variables, and analyze it.
 
+To do this for our dataset we need to look at documentation for the dataset which is also available on the site (<https://microdata.worldbank.org/index.php/catalog/2734/data-dictionary>).
 
+After familiarizing ourselves with the metadata files, it is clear that the variables we want to analyze are in two different files namely sect8b_plantingw3.csv (contains expenditure on various fuels including kerosene and petrol among others) and sect8c_plantingw3.csv (contains expenditure on health). The dataset create opportunity for us to learn key skills of data wrangling and transformation before the actual clustering analysis. This is typical of many projects
 
-```{r}
+#### Project Tasks
+
+-   Data wrangling and transformation
+    -   Subseting dataset
+    -   filtering dataset
+    -   grouping dataset
+    -   summarizing
+-   Scaling dataset
+-  Hierarchical clustering
+    -   AGNES clustering
+    -   DIANA clustering
+-   Determining optimal clusters
+-   Customizing visualization of clusters
+
+#### Packages and libraries
+
+Now that we know the tasks we will be undertaking, we have to install (if not already installed) and load the  libraries needed
+
+```{r message=FALSE}
 ## install librabries if not already available
-# I have commented the code for installation because I have already installed them
+### I have commented the code for installation because I have already installed them
 # install.packages("tidyverse")
 # install.packages("cluster")
 # install.packages("factoextra")
 # install.packages("dendextend")
-# install.packages("tidyverse")
+# install.packages("DT")
+# install.packages("skimr")
+# install.packages("dplyr")
+# install.packages("dendextend")
+# install.packages("ape")
 
 ## load librabries
-library(readr)
-library(tidyverse)
-library(cluster)
-library(factoextra)
-library(dendextend)
-library(stats)
-library(DT)
-library(skimr)
-library(bslib)
-library(dplyr)
-library(ape)
+library(readr)  ## to read csv file
+library(tidyverse) ## to tidy the data
+library(cluster) ##  for cluster analysis
+library(factoextra) ## to visualize clusters
+library(dendextend)  ## to compare dendrograms
+library(stats)  ## for statistical analysis
+library(DT)  ## to present beautiful tables
+library(skimr)  ## for quick descriptive view of the dataset
+library(ape)  ## to visualize dendrograms
 ```
 
-### Reading dataset
-The first thing to do is to import the datasets (hopefully you have downloaded) to be and get a general understanding of it. This can be achieve with the code below
+#### Reading the dataset
+
+The first thing to do is to import the datasets (hopefully you have downloaded them) and get a general understanding of it. This can be achieve with the code below
 
 ```{r message=FALSE}
-library(readr)
 fuel_expenditure <- read_csv("sect8b_plantingw3.csv")  ## load the dataset
 health_expenditure <- read_csv("sect8c_plantingw3.csv") ## load the dataset
 
-skim(fuel_expenditure)  ## get the data summary
-skim(health_expenditure) ## get the data summary
+skim(fuel_expenditure)  ## get data summary
+skim(health_expenditure) ## get data summary
 
 ```
 
-The skim() function gives us an over of the dataset. We are able to know that there are 10 columns in both the fuel_expenditure and health_expenditure data object. Among others, it gives the mean and number of missing cases of each variable. Depending on the type of variable, that is whether character or numeric, we get different type of summary. Some of the variables are not in their right intended data type. Example, zone, state and lga are numeric instead of being character but that is not the focus here. The variable s8q4 from fuel_expenditure data object has 112727 missing records.
+The skim() function gives us an overview of the dataset. We shows that there are 10 columns in both the fuel_expenditure and health_expenditure data object. Among others, it gives the mean and number of missing cases for each variable. Depending on the type of variable, that is whether character or numeric, we get different type of summary. Some of the variables are not in their right data type format. Example, zone, state and lga are numeric instead of being character but that is not the focus here. The variable s8q4 from fuel_expenditure data object has 112727 missing records.
 
-We keep saying the variable and that brings up the question, what does the mean? This is where our earlier exercise of viewing the metadata plays its role. If we indeed went through the various files and questionnaire that comes with the data, we will realize that variable s8q4 (fuel_expenditure data) represents household monthly expenditure in Naire for various items identified in item_desc variable. Likewise, s8q6 (health_expenditure data) represents expenditure for items but this round it is for a 6 month period. 
+We keep saying the variable and that brings up the question, what does the variable actually mean? This is where our earlier exercise of viewing the metadata plays its role. If we indeed went through the various documentations and questionnaire that comes with the data, we will realize that variable s8q4 (fuel_expenditure data) represents household monthly expenditure measured in Naire for various items identified in item_desc variable. Likewise, s8q6 (health_expenditure data) represents expenditure for items but this time round it covers 6 month duration
 
 Our dataset is quite large to be viewed in a table nicely and adequately so we will subset the first 100 rows (remember rows are individual records or observations) and show them in an interactive table using the datatable() function from DT package.
 
 ```{r }
-datatable(fuel_expenditure[1:100, ])  ## view the fuel_expenditure data
+datatable(fuel_expenditure[1:100, ])  ## view the first 100 observations in fuel_expenditure data
 ```
 
-The fuel_expenditure table above shows that we have more than needed variables for our analysis and we also interested in Petrol and Kerosene data from the item_desc variable. Moreover, the variable names are not understandable. So just by viewing the table, we get to known some data wangling tasks awaiting us. The same can be said for the health_expenditure data object.
+The fuel_expenditure table above shows that we have more variables than needed for our analysis and we are interested in only Petrol and Kerosene from the item_desc variable. Moreover, the variable names are not understandable. So just by viewing the table, we can realize that some data wrangling tasks await us. The same can be said for the health_expenditure data object.
 
-
-Let view the first 100 rows of health_expenditure data object below
+Let view the first 100 rows of health_expenditure data.
 
 ```{r}
 datatable(health_expenditure[1:100, ]) ## view the health_expenditure data 
 ```
 
-## Data wangling and transformation
-We have imported and viewed our datasets successfully and now we have to clean, and transform our data to the required format for analysis. Data wangling and transformation activities are not a cast in a stone despite some activities are very common. The type and structure of dataset and analysis we want to perform determines what we need to do.
+## Data wrangling and transformation
 
-Looking at our dataset, we need reduce the dataset to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing the piping (%>%) to harness it benefit of logical, clear flow of analysis. This can be achieved with code below for fuel_expenditure.
+We have imported and viewed our datasets successfully and now we have to clean, and transform our data to the required format for analysis. Data wrangling and transformation activities are not a cast in a stone despite some activities are very common. The type and structure of dataset and analysis we want to perform determines what we need to do.
+
+Looking at our dataset, we need to reduce the dataset to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing piping approach (%>%) to harness its benefit of logical and clear flow of analysis. This can be achieved with the code below for fuel_expenditure.
 
 ```{r echo=FALSE}
 fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a variable for onward analysis
@@ -146,11 +170,11 @@ fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a va
 datatable(fuel_expenditure_transformed[1:200, ]) ## view the first 200 rows of transformed data
 ```
 
-Now you will realize we have reduced the data to only variables that we need. Yet, it is obvious there is still work to be done. First of all, the varaible **state** has meaningless numbers instead of names of states in Nigeria. This was useful data collection and entry but not our analysis where audience have to known state names explicitely. How do we know exactly what these numbers represent? Again, this where our metadata exploration comes to our rescue. When we reviewed the documentation that comes with the data, you will realize that under **state code** the corresponding state names are provided. With this we can add a new column that has the corresponding state names. 
+Now you will realize we have reduced the data to only variables that we need. Yet, it is obvious there is still work to be done. First of all, the varaible **state** has meaningless numbers instead of names of states in Nigeria. This was useful for data collection and data entry but not our analysis where audience have to known state names explicitely. How do we know exactly what these numbers represent? Again, this is where our metadata exploration comes to our rescue. When we reviewed the documentation that came with the data, we realized that under **state code** the corresponding state names are provided. With this, we can add a new column that has the corresponding state names.
 
-Another issue to note which also influences how to transform our data is that, the number of observation recorded for each state varies. This has to do with data sampling used during data collection. We want to make sure that the state are comparable in terms of expenditure so instead of summarizing with the total expenditure for each state, we will use the mean. With that we will see expenditure of state and not households and we have this captured as labels when we do the clustering so we will convert the column of state names to our row names.
+Another issue to note, which also influences how to transform our data is that, is the number of observations recorded for each state varies. This has to do with the sampling technique used during data collection in order to achieve good representativeness. We want to make sure that the states are comparable in terms of expenditure so instead of summarizing with the total expenditure for each state, we will use the mean. With that, we will see mean expenditure of state and not households. In order to this captured as our labels when we do the clustering analysis, we will convert the column of state names to row names.
 
-Now, lets code all that we have discuss so far.
+Now, lets code all that we have discussed so far.
 
 ```{r}
 fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
@@ -198,10 +222,9 @@ fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
 datatable(fuel_expenditure_transformed)
 ```
 
+After cleaning and transforming fuel_expenditure data, we need to make sure that the second data is also transform to be at the same quality level or format. Remember that health_expenditure is for 6 months which means that in order to analyze both data properly for the same time scale, we need to convert it to monthly data and then calculate the mean.
 
-Now the fuel_expenditure data has been transformed, we need to make sure that the second data is also transform to be in the same quality level or format. Remember that health_expenditure is for 6 months which means that in order to comparing data of the same time scale, we need to convert it to monthly data and then calculate the mean. 
-
-The code code to transform health expenditure is below;     
+The code to transform health expenditure is below;
 
 ```{r error=FALSE}
 health_expenditure_transformed <- health_expenditure %>%
@@ -255,38 +278,33 @@ health_expenditure_transformed <- health_expenditure %>%
  
 ```
 
-Now, we have transformed both datasets and we need verify if they are equal in terms of number of rows and columns before joining together for further analysis.
+Now, we have transformed both datasets and we need to verify if they are equal in terms of number of rows and columns before joining together for further analysis.
 
 ```{r}
 nrow(fuel_expenditure_transformed)
 nrow(health_expenditure_transformed)
 ```
-We realize that the number of rows are different for fuel_expenditure-transformed (37) and health_expenditure_transformed (36). 
-This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for  Jigawa state. This is an instance of where we are faced with the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state at of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for all datasets and then join them together as well as convert the column **state_names** to row names as this is what will be used to label the cluster leafs to be more meaningful. The code for that is as follows;
 
+We will realize that the number of rows are different for fuel_expenditure_transformed (37) and health_expenditure_transformed (36). This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for Jigawa state. This is an instance where we are face the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state out of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for all datasets and then join them together. Then, we will convert the column **state_names** to row names for labeling the cluster leafs to be more meaningful. The code to achieve that is as follows;
 
 ```{r}
-# fuel_expenditure_transformed <- fuel_expenditure_transformed[!(fuel_expenditure_transformed$state == 17)] #%>%
-#   #dplyr::filter(fuel_expenditure_transformed, fuel_expenditure_transformed$state_names != "Jigawa") 
 dataset_all <- subset.data.frame(fuel_expenditure_transformed, fuel_expenditure_transformed$state != 17) %>%
   dplyr::left_join(health_expenditure_transformed) %>%  ## join the two datasets
   tibble::column_to_rownames(var = "state_names") %>% ## transform variable state_names to rownames
   select(-1) ## select all columns except the first one (state) which we don't need again
 
 datatable(dataset_all)
-
- # expenditure_all <- left_join(fuel_expenditure_transformed, health_expenditure_transformed, by = state_names)
- # datatable(expenditure_all)
 ```
 
-Now our data is already and prepared for analysis. But before then, we have to do clustering relevant data preparation
+Now our data is ready for analysis!. But before then, we have to do clustering relevant data preparation
 
 #### Clustering relevant data preparation
-The data preparation done at this stage is not one that we will do for all analysis. We are doing them in order to successfully do a cluster analysis that is appropriate.
 
-* Data standardization: Before apply various clustering algorithms, we need to standardize the data to have  mean zero and standard deviation one. This is done to make our variables have a common scale hence comparable.
+The data preparation done at this stage is not one that we will do for all type of analysis. We are doing them in order to successfully undertake a clustering analysis that is appropriate.
 
-* Computation of dissimilarity matrix: This is done identify observations that can belong to the same clusters. 
+-   Data standardization: Before apply various clustering algorithms, we need to standardize the data to have mean zero and standard deviation one. This is done to make our variables have a common scale hence comparable.
+
+-   Computation of dissimilarity measure: This is done to identify observations that belong to the same clusters.
 
 Now, lets write our code for that;
 
@@ -294,60 +312,51 @@ Now, lets write our code for that;
 ## scale the data
  dataset_all_scaled <- scale(dataset_all)
  
- ## cal dissimilarity matrix
+ ## calculate dissimilarity 
  dataset_dissimilarity <- dist(dataset_all_scaled, method = "euclidean")
 ```
 
+We will use all the clustering methods we have discussed above and compare the results.
 
-We will use all the clustering methods we have discussed above and compare the results. 
+## Agglomerative Nesting (AGNES)
 
-### Agglomerative clustering (AGNES)
-Agglomerative clustering can be undertaken using hclust(), flashClust or agnes()
+Agglomerative nesting can be undertaken using hclust(), flashClust or agnes()
 
 ```{r}
 ## hierarchical clustering wtih complete linkage
 hcl_complete<-  hclust(dataset_dissimilarity, method = "complete")
  
 plot(hcl_complete, cex = 0.6, hang = -1) 
-
-
-
 ```
 
-Using agnes function gives us the agglomerative co-efficent (ac) which is measures the level of clustering. The higher the ac, the stronger the clustering structure.
+Using agnes function gives us the agglomerative co-efficent (ac) which measures the strength of clustering. The higher the ac, the stronger the clustering structure.
 
 ```{r}
 ## agnes clustering
 agnes_complete <- agnes(dataset_dissimilarity, method = "complete")
 
 plot(agnes_complete)
-
 ```
 
-Now, let all the methods we have discuss for AGNES.
+Now, lets look at other methods we have discussed for AGNES.
 
 ```{r}
 ## compute agnes clustering with various methods
 agnes_single <- agnes(dataset_dissimilarity, method = "single")
 agnes_average <- agnes(dataset_dissimilarity, method = "average")
 agnes_ward <- agnes(dataset_dissimilarity, method = "ward")
-#agnes_centriod <- agnes(dataset_dissimilarity, method = "median")
 
 #Plot results
 plot(agnes_single)
 plot(agnes_average)
 plot(agnes_ward)
-#plot(agnes_centriod)
-
 ```
 
-From the various methods, agnes with the ward produces an ac of 0.9 which is the highest compared to others hence produces the strongest structure for the dataset.
+From the various methods, agnes with the ward method produces an ac of 0.9 which is the highest compared to others hence depicts the strongest structure.
 
-
-Before we draw the curtains down on agnes, let also note the hcluster() fucntion also accepts other methods for clustering such as the following
+Before we draw the curtains down on agnes, lets also note that hcluster() function also accepts other methods
 
 ```{r}
-
 hclust_mcquitty <- hclust(dataset_dissimilarity, method = "mcquitty")
 hclust_median <- hclust(dataset_dissimilarity, method = "median")
 hclust_centriod <- hclust(dataset_dissimilarity, method = "centroid")
@@ -357,13 +366,15 @@ plot(hclust_median, cex = 0.6, hang = -1)
 plot(hclust_centriod, cex = 0.6, hang = -1)
 ```
 
-```{r}
+## Divisive clustering 
+Divisive clustering does not require a method argument to be specified. Lets analyze the data using diana()
 
+```{r}
 #### divisive clustering
-# compute divisive hierarchical clustering
+# computes divisive hierarchical clustering
 divisive_cluster <- cluster::diana(dataset_dissimilarity)
 
-# divisive coeffieict amount of clustering structure found
+# divisive coefficient -- amount of clustering structure found
 divisive_cluster$dc
 
 #plot dendrogram for divisive clustering
@@ -371,111 +382,96 @@ pltree(divisive_cluster, cex = 0.6, hang = .2, main = "Dendrogram of diana")
 divisive_cluster$dc
 ```
 
-```{r}
-try.diss.div <- diana(dataset_dissimilarity)
-pltree(try.diss.div, cex = 0.6, hang = .2)
-try.diss.div$dc
-try.diss.div$order.lab
-
-```
-
 #### Identifying clusters of subgroups
-We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. Lets cuts our observation into 4 clusters with the code below. This can be done for both agnes and divise
+
+We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. Lets cut our observation into 5 clusters with the code below. This can be done for both agnes and divise
 
 ```{r}
-
-## identify subgroups
-
 # CUT TREE INTO 5 GROUPS
 hcl_complete_group <- cutree(hcl_complete, k = 5)
 
 ### Number of members in each cluster
 table(hcl_complete_group)
+
 ##add cluster groupings to data
 dataset_all_cluster <- dataset_all%>%
   mutate(cluster = hcl_complete_group) %>%
   head()
-
 ```
 
-we can visualize how the various state are grouped when we cut into 5 clusters using the code below
+We can visualize how the various state are grouped when we cut into 5 clusters using the code below
 
 ```{r}
 ## visualize with fviz_cluster
 fviz_cluster(list(data = dataset_all_scaled, cluster = hcl_complete_group))
-
 ```
 
+#### Comparing dendrograms
 
-### Comparing dendrograms
- We can compare the various clustering for different methods by creating dendrogram objects for them and
- plotting to compare
- 
+We can compare the various clustering for different methods by creating dendrogram objects for them and plotting to compare
+
 ```{r}
-
+### create dendrogram object
 agnes_complete_dendrogram <- as.dendrogram(agnes_complete)
 agnes_ward_dendrogram <- as.dendrogram(agnes_ward)
 
 ### plot the dendrograms to compare and match
 tanglegram(agnes_complete_dendrogram, agnes_ward_dendrogram)
-
-
 ```
-The dashed lines shows cluster combinations different from those in the other tree. 
 
-#### customizing the dendrogram
-Visualizing results has never become less important for cluster analysis where observations are group and there is the need for more colourful differentiation of groups to better understand the visualization. There are options to for this.
-# First we can chain multiple dendrograms together to customize them easily
+The dashed lines shows cluster combinations different from those in the other trees.
+
+#### Customizing the dendrogram
+
+Visualizing results has never been less important for cluster analysis where observations are grouped and there is the need for more colourful differentiation of groups to better understand the results presented. There are options for this. First, we can chain multiple dendrograms together to customize them easily.
 
 ```{r}
 # create a dendlist
 dend_list_agnes_complete_ward <- dendlist(agnes_complete_dendrogram, agnes_ward_dendrogram)
 
 tanglegram(dend1 = agnes_complete_dendrogram, dend2 = agnes_ward_dendrogram,
-           highlight_distinct_edges = T, # Turn off dashed lines
+           highlight_distinct_edges = TRUE, # Turn off dashed lines
            common_subtrees_color_lines = TRUE, # turn-off line colors
            common_subtrees_color_branches = TRUE, # color common branches
-           highlight_branches_col = T,
+           highlight_branches_col = TRUE,
            main_left = "Agglomerative Nesting (complete method)",
            main_right = "Agglomerative Nesting (ward method)",
            sub = "Expenditure on Petrol, Kerosene and Health -States in Nigeria",
-     #      rank_branches = T,
-    #       sort = T,
            cex_main_left = 0.9,
            cex_main = 0.7,
-    cex_sub = 0.6,
-    #margin_bottom = 1,
-    #       hang = T,
-    margin_inner = 5,
+            cex_sub = 0.6,
+            margin_inner = 5,
            main = paste("Entanglement = ", round(entanglement(dend_list_agnes_complete_ward), 2)))
 
 agnes_complete_dendrogram
  
 ```
 
+We have added entanglement co-efficient to the graph. It measures how well align the trees are on a scale of 1 to 0. The low co-oefficient of 0.17 indicates least entanglement with good alignment.
 
-We have added entanglement co-efficient to the graph. It measures how well align the trees on a scale of 1 to 0. The low co-oefficient of 0.17 shows least entanglement with good alignment
+## Determining optimal number of clusters
 
-### Determining optimal clusters
-A number of methods can be used to determine the optimal of clusters for grouping
+A number of methods can be used to determine the optimal number of clusters for grouping
 
-#### Elbow method of determing optimal clusters
-fviz_nbclust(health_expense_scaled, FUN = hcut, method = "wss")
+#### Elbow method of determing optimal number of clusters
+To determine optimal number of clusters with elbow method, we need to look at where the bend is located which can be gauged to be 3 from our analysis below 
 
 ```{r}
 fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "wss")
 ```
-To determine optimal cluster with elbow method, we need to look at where a bend is located which can be gauged to 3 from the graph above.
 
-### Average silhouette method
-Average silhouette methods indicates the how well the clusters form with within cluster difference minimized at the optimal cluster number. Thus, the higher the average cluster with the better the clustering for different number of clusters.
+
+#### Average silhouette method
+
+Average silhouette method indicates how well the clusters form with within cluster difference minimized at the optimal cluster number. Thus, the highest average silhouette width corresponds to the optimal number of clusters.
 
 ```{r}
 fviz_nbclust(dataset_all_scaled, FUN = hcut, method = "silhouette")
 ```
-From the plot, the optimal number of clusters specified by average silhouette method is 3.
 
-## gap statistics method
+From the plot above, the optimal number of clusters is 3.
+
+#### Gap statistics method
 
 ```{r}
 dataset_gapstat <- clusGap(dataset_all_scaled, FUN = hcut, K.max = 10)
@@ -483,20 +479,18 @@ dataset_gapstat <- clusGap(dataset_all_scaled, FUN = hcut, K.max = 10)
 fviz_gap_stat(dataset_gapstat)
 ```
 
-The gaps method identified 1 to be the optimal number of clusters within a range of 1 to 10 clusters. Well, as we can deduce, different methods can identify different number of clusters. With 2 of the methods suggesting 3 to be the optimal number of clusters, we can go by that. 
+The gaps method identified 1 to be the optimal number of clusters within a range of 1 to 10 clusters. Well, as we can deduce, different methods can identify different number of optimal clusters. With 2 of the methods suggesting 3 to be the optimal number of clusters, we can go by that.
 
-Now that we know the optimal cluster number, let use that to visualize the data but in a different way from the previous
+Now that we know the optimal number of clusters, lets use that to visualize the data but in a way different from the previous.
 
 ```{r}
-
 # Cut the dendrogram into 4 clusters
 colors = c("brown", "orange", "#1DEfbb", "yellow")
-# plot(as.phylo(hc), type = "fan", tip.color = colors[clus4],
-#      label.offset = 1, cex = 0.7)
 
 ward_cut <- cutree(hcl_complete, k = 3)
-plot(as.phylo(hcl_complete), type = "fan", tip.color = colors[ward_cut], label.offset = .5, cex = 0.7, no.margin = T, use.edge.length = T)
+plot(as.phylo(hcl_complete), type = "fan", tip.color = colors[ward_cut], label.offset = .5, cex = 0.7, no.margin = TRUE, use.edge.length = TRUE)
 ```
 
 ## Conclusion
-This tutorial demonstrate hierarchical clustering us a project that is typical of the real world. We went through process of data wrangling and transformation, clustering and determining the optimal clustering.
+
+With this simple exercise, we learnt how to undertake hierarchical clustering analysis using a project that is typical of the real world. We went through process of data wrangling and transformation, clustering and determining the optimal number of clusters.
