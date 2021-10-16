@@ -29,12 +29,12 @@ output:
 
 Clustering analysis is one of the important exploratory data analysis you will consider undertaking in order to identify groupings in your dataset. It belongs to the segment of unsupervised classification which draws the data into clusters of similarity. Infact, many classification schemes have this underpinning of classifying a large set of individual elements or observations into a small number of classes. Talk of species classification, the periodic table, development index among others. Remember, it is groups of similarity. This notion also runs in business or rather dominates business decisions. Differential pricing, product and market segmentation among others require identifying the different groups present and tailoring policies that best serve each of them. So clustering analysis is important there!
 
-That being said, there are typically two set of clustering techniques that are used to identify groups of similarity. Namely;
+That being said, there are typically two set of clustering techniques that are use to identify groups of similarity. Namely;
 
 -   Hierarchical clustering
 -   K-means clustering
 
-In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering where a tree structure are produced for the clusters -- dendrograms.
+In order to do a little deep dive, we will take them in turns. This tutorial will focus on hierarchical clustering where a tree structure is produce for the clusters -- dendrograms.
 
 ## Hierarchical clustering analysis
 
