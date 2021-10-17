@@ -38,9 +38,9 @@ In order to do a little deep dive, we will take them in turns. This tutorial wil
 
 ## Hierarchical clustering analysis
 
-Hierarchical clustering is of two types; agglomerative nesting and divisive analysis. The two are opposed in terms of where formation of clusters begin from. 
+Hierarchical clustering is of two types; agglomerative nesting and divisive analysis. The two are oppose in terms of where formation of clusters begin from. 
 
-* Agglomerative Nesting (AGNES) merges similar clusters beginning from the bottom-most into nodes and in a sequential manner continue merging them until all clusters form a single root at the top of the tree.
+* Agglomerative Nesting (AGNES) merges similar clusters beginning from the bottom-most, into nodes and in a sequential manner continue merging them until all clusters form a single root at the top of the tree.
 
 * Divisive clustering also known as DIANA (Divise Analysis) runs in opposite direction to AGNES. The algorithm starts by disaggregating the root cluster which is the single cluster containing all other clusters into dissimilar clusters at each step (with each cluster being internally similar) until all the dissimilarity between clusters are completely exhausted. Thus, it ends with the leafs which are  clusters at the bottom entirely dissimilar to each other.
 
