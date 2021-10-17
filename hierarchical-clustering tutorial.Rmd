@@ -58,17 +58,17 @@ In order to undertake hierarchical clustering, the data has to be cleaned and pr
 - Standardizing / scaling the data
 - Calculating dissimilarity measure between clusters
 
-In measuring dissimilarity between clusters, different methods can be used and have to specified for AGNES. The methods are identified as follows; 
+In measuring dissimilarity between clusters, different methods can be use and are required to be specified when using AGNES. The methods are identified as follows; 
 
 * Maximum / complete linkage: uses the highest dissimilarity found between clusters after pairwise calculation of dissimilarities of elements in different clusters.
 
--   Minimum / single linkage: uses the least dissimilarity between clusters following similar method as the complete linkage in calculating dissimilarity
+-   Minimum / single linkage: uses the least dissimilarity between clusters following similar method as complete linkage in calculating dissimilarity
 
--   Mean / average linkage: as the name suggests, uses the average dissimilarity as distance between clusters after computing pairwise dissimilarity between observations in different clusters.
+-   Mean / average linkage: as the name suggests, uses average dissimilarity as distance between clusters after computing pairwise dissimilarity between observations in different clusters.
 
--   Centroid linkage: Is based on the dissimilarity between the centroid of clusters.
+-   Centroid linkage: based on the dissimilarity between the centroid of clusters.
 
--   Ward's minimum variance: focus on minimizing the inward cluster difference by merging groups with least between-cluster distance.
+-   Ward's minimum variance: focuses on minimizing inward cluster difference by merging groups with least between-cluster distance.
 
 The best way to understand the workflow and methods identified for computing hierarchical clustering is by practicing with a project. We are going to define a simple research that clustering analysis can be used for and go through the complete pipeline required to execute it. 
 
@@ -184,7 +184,7 @@ Now you will realize we have reduced the data to only variables that we need. Ye
 
 Another issue to note, which also influences how to transform our data is that, is the number of observations recorded for each state varies. This has to do with the sampling technique used during data collection in order to achieve good representativeness. We want to make sure that the states are comparable in terms of expenditure so instead of summarizing with the total expenditure for each state, we will use the mean. With that, we will see mean expenditure of state and not households. In order to this captured as our labels when we do the clustering analysis, we will convert the column of state names to row names.
 
-Now, lets code all that we have discussed so far.
+Now, let's code all that we have discussed so far.
 
 ```{r fuel-data-mutate}
 fuel_expenditure_transformed <- fuel_expenditure_transformed %>%
@@ -316,7 +316,7 @@ The data preparation done at this stage is not one that we will do for all type 
 
 -   Computation of dissimilarity measure: This is done to identify observations that belong to the same clusters.
 
-Now, lets write our code for that;
+Now, let's write our code for that;
 
 ```{r dissimilarity}
 ## scale the data
@@ -349,7 +349,7 @@ agnes_complete <- agnes(dataset_dissimilarity, method = "complete")
 plot(agnes_complete)
 ```
 
-Now, lets look at other methods we have discussed for AGNES.
+Now, let's look at other methods we have discussed for AGNES.
 
 ```{r agnes-method}
 ## compute agnes clustering with various methods
@@ -365,7 +365,7 @@ plot(agnes_ward)
 
 From the various methods, agnes with the ward method produces an ac of 0.9 which is the highest compared to others hence depicts the strongest structure.
 
-Before we draw the curtains down on agnes, lets also note that hcluster() function also accepts other methods
+Before we draw the curtains down on agnes, let's also note that hcluster() function also accepts other methods
 
 ```{r hcl-methods}
 hclust_mcquitty <- hclust(dataset_dissimilarity, method = "mcquitty")
@@ -379,7 +379,7 @@ plot(hclust_centriod, cex = 0.6, hang = -1)
 
 
 ## Divisive clustering 
-Divisive clustering does not require a method argument to be specified. Lets analyze the data using diana()
+Divisive clustering does not require a method argument to be specified. let's analyze the data using diana()
 
 ```{r divisive-hcl}
 #### divisive clustering
@@ -396,7 +396,7 @@ divisive_cluster$dc
 
 #### Identifying clusters of subgroups
 
-We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. Lets cut our observation into 5 clusters with the code below. This can be done for both agnes and divise
+We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. let's cut our observation into 5 clusters with the code below. This can be done for both agnes and divise
 
 ```{r cut-grp}
 # CUT TREE INTO 5 GROUPS
@@ -495,7 +495,7 @@ fviz_gap_stat(dataset_gapstat)
 
 The gaps method identified 1 to be the optimal number of clusters within a range of 1 to 10 clusters. Well, as we can deduce, different methods can identify different number of optimal clusters. With 2 of the methods suggesting 3 to be the optimal number of clusters, we can go by that.
 
-Now that we know the optimal number of clusters, lets use that to visualize the data but in a way different from the previous.
+Now that we know the optimal number of clusters, let's use that to visualize the data but in a way different from the previous.
 
 ```{r fan-dendrogram}
 # Cut the dendrogram into 4 clusters
