@@ -81,15 +81,15 @@ So let's take a break from the long discussion and start with  practicals.
 
 ## Dataset
 
-The dataset to be used for this tutorial is the Living Standard Measurement Study (LSMS) for Nigeria. Specifically, we will use the General Household Survey, 2015-2016 Panel data which is the Wave 3. The dataset can be accessed from <https://microdata.worldbank.org/index.php/catalog/2734/related-materials>
+The dataset to be used for this tutorial is Living Standard Measurement Study (LSMS) for Nigeria. Specifically, we will use the General Household Survey, 2015-2016 Panel data which is the Wave 3. The dataset can be accessed from (<https://microdata.worldbank.org/index.php/catalog/2734/related-materials>).
 
 #### Know the Metadata of your data
 
 As part of most data science projects in the real world, background checks has to be done even before data exploration and analysis. We have covered our first step which is accessing the data. The data can even be provided to us by our client or project partner or whoever we are working for. But one thing that we will have to do ourselves is to familiarize ourselves with variable names used, questionnaire administered and its design, how data was collected, units of measurement for the various variables among several others. Understanding these elements will influence how we explore the data, organize it in terms of merging datasets and variables, and analyze it.
 
-To do this for our dataset we need to look at documentation for the dataset which is also available on the site (<https://microdata.worldbank.org/index.php/catalog/2734/data-dictionary>).
+To do this for our dataset, we need to look at the documentation of the dataset which is also available on the site (<https://microdata.worldbank.org/index.php/catalog/2734/data-dictionary>).
 
-After familiarizing ourselves with the metadata files, it is clear that the variables we want to analyze are in two different files namely sect8b_plantingw3.csv (contains expenditure on various fuels including kerosene and petrol among others) and sect8c_plantingw3.csv (contains expenditure on health). The dataset create opportunity for us to learn key skills of data wrangling and transformation before the actual clustering analysis. This is typical of many projects
+After familiarizing ourselves with the metadata files, it is clear that the variables we want to analyze are in two different files namely sect8b_plantingw3.csv (contains expenditure on various fuels including kerosene and petrol among others) and sect8c_plantingw3.csv (contains expenditure on health). The dataset create opportunity for us to learn key skills of data wrangling and transformation before the actual clustering analysis. This is typical of many projects.
 
 #### Project Tasks
 
@@ -136,7 +136,7 @@ library(ape)  ## to visualize dendrograms
 
 #### Reading the dataset
 
-The first thing to do is to import the datasets (hopefully you have downloaded them) and get a general understanding of it. This can be achieve with the code below
+The first thing to do is to import the dataset (hopefully you have downloaded them) and get a general understanding of it. This can be achieve with the code below
 
 ```{r data-load, message=FALSE}
 fuel_expenditure <- read_csv("sect8b_plantingw3.csv")  ## load the dataset
@@ -147,19 +147,19 @@ skim(health_expenditure) ## get data summary
 
 ```
 
-The skim() function gives us an overview of the dataset. We shows that there are 10 columns in both the fuel_expenditure and health_expenditure data object. Among others, it gives the mean and number of missing cases for each variable. Depending on the type of variable, that is whether character or numeric, we get different type of summary. Some of the variables are not in their right data type format. Example, zone, state and lga are numeric instead of being character but that is not the focus here. The variable s8q4 from fuel_expenditure data object has 112727 missing records.
+The skim() function gives us an overview of the dataset. It shows that there are 10 columns in both the fuel_expenditure and health_expenditure data objects. Among others, it gives the mean and number of missing cases for each variable. Depending on the type of variable, that is whether character or numeric, we get different type of summary. Some of the variables are not in their right data type format. Example, zone, state and lga are numeric instead of being character but that is not the focus here. The variable s8q4 from fuel_expenditure data object has 112727 missing records.
 
-We keep saying the variable and that brings up the question, what does the variable actually mean? This is where our earlier exercise of viewing the metadata plays its role. If we indeed went through the various documentations and questionnaire that comes with the data, we will realize that variable s8q4 (fuel_expenditure data) represents household monthly expenditure measured in Naire for various items identified in item_desc variable. Likewise, s8q6 (health_expenditure data) represents expenditure for items but this time round it covers 6 month duration
+We keep saying the variable and that brings up the question, what does the variable actually mean? This is where our earlier exercise of viewing the metadata plays its role. If we indeed went through the various documentations and questionnaire that comes with the data, we will realize that variable s8q4 (fuel_expenditure data) represents household monthly expenditure measured in Naire for various items identified in item_desc variable. Likewise, s8q6 (health_expenditure data) represents expenditure for items but this time round it covers 6 month duration.
 
-Our dataset is quite large to be viewed in a table nicely and adequately so we will subset the first 100 rows (remember rows are individual records or observations) and show them in an interactive table using the datatable() function from DT package.
+Our dataset is quite large to be viewed in a table nicely and adequately; so we will subset the first 100 rows (remember rows are individual records or observations) and show them in an interactive table using the datatable() function from DT package.
 
 ```{r data-display}
 datatable(fuel_expenditure[1:100, ])  ## view the first 100 observations in fuel_expenditure data
 ```
 
-The fuel_expenditure table above shows that we have more variables than needed for our analysis and we are interested in only Petrol and Kerosene from the item_desc variable. Moreover, the variable names are not understandable. So just by viewing the table, we can realize that some data wrangling tasks await us. The same can be said for the health_expenditure data object.
+The fuel_expenditure table above shows that we have more variables than needed for our analysis as we are only interested in Petrol and Kerosene captured in the item_desc variable. Moreover, the variable names are not understandable. So just by viewing the table, we will realize that some data wrangling tasks await us. The same can be said for the health_expenditure data object.
 
-Let view the first 100 rows of health_expenditure data.
+Let's view the first 100 rows of health_expenditure data.
 
 ```{r}
 datatable(health_expenditure[1:100, ]) ## view the health_expenditure data 
@@ -168,9 +168,9 @@ datatable(health_expenditure[1:100, ]) ## view the health_expenditure data
 
 ## Data wrangling and transformation
 
-We have imported and viewed our datasets successfully and now we have to clean, and transform our data to the required format for analysis. Data wrangling and transformation activities are not a cast in a stone despite some activities are very common. The type and structure of dataset and analysis we want to perform determines what we need to do.
+We have imported and viewed our dataset successfully and now we have to clean, and transform our data to the required format for analysis. Data wrangling and transformation activities are not a cast in a stone despite some activities are very common. The type and structure of dataset and analysis we want to perform determines what we need to do.
 
-Looking at our dataset, we need to reduce the dataset to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing piping approach (%>%) to harness its benefit of logical and clear flow of analysis. This can be achieved with the code below for fuel_expenditure.
+Looking at our dataset, we need to reduce it to only columns that we are interested in, add some new columns with transformed data and clean out the missing data. We will be utilizing piping approach (%>%) to harness its benefit of logical and clear flow of analysis. This can be achieve with the code below for fuel_expenditure.
 
 ```{r fuel-data-clean, echo=FALSE}
 fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a variable for onward analysis
@@ -180,9 +180,9 @@ fuel_expenditure_transformed <- fuel_expenditure %>%  ## assign the data to a va
 datatable(fuel_expenditure_transformed[1:200, ]) ## view the first 200 rows of transformed data
 ```
 
-Now you will realize we have reduced the data to only variables that we need. Yet, it is obvious there is still work to be done. First of all, the varaible **state** has meaningless numbers instead of names of states in Nigeria. This was useful for data collection and data entry but not our analysis where audience have to known state names explicitely. How do we know exactly what these numbers represent? Again, this is where our metadata exploration comes to our rescue. When we reviewed the documentation that came with the data, we realized that under **state code** the corresponding state names are provided. With this, we can add a new column that has the corresponding state names.
+Now, we have reduced the data to only variables needed. Yet, it is obvious there is still work to be done. First of all, the varaible **"state"** has meaningless numbers instead of names of states in Nigeria. This was useful for data collection and data entry but not our analysis where audience have to know state names explicitely. How do we know exactly what these numbers represent? Again, this is where our metadata exploration comes to our rescue. When we reviewed the documentation that came with the data, we realized that under **"state code"**, the corresponding state names are provided. With this, we can add a new column that has the corresponding state names.
 
-Another issue to note, which also influences how to transform our data is that, is the number of observations recorded for each state varies. This has to do with the sampling technique used during data collection in order to achieve good representativeness. We want to make sure that the states are comparable in terms of expenditure so instead of summarizing with the total expenditure for each state, we will use the mean. With that, we will see mean expenditure of state and not households. In order to this captured as our labels when we do the clustering analysis, we will convert the column of state names to row names.
+Another issue to note, which also influences how to transform our data is that, the number of observations recorded for each state varies. This has to do with the sampling technique used during data collection in order to achieve good representativeness. We want to make sure that, the states are comparable in terms of expenditure. So instead of summarizing base on the total expenditure for each state, we will do so based on the mean. With that, we will see mean expenditure of state and not sum of households. In order to  captured this as our labeling when we do the clustering analysis, we will convert the column of state names to row names.
 
 Now, let's code all that we have discussed so far.
 
@@ -234,7 +234,7 @@ datatable(fuel_expenditure_transformed)
 
 After cleaning and transforming fuel_expenditure data, we need to make sure that the second data is also transform to be at the same quality level or format. Remember that health_expenditure is for 6 months which means that in order to analyze both data properly for the same time scale, we need to convert it to monthly data and then calculate the mean.
 
-The code to transform health expenditure is below;
+The code to transform health expenditure data to required format is below;
 
 ```{r health-data-wrang, error=FALSE}
 health_expenditure_transformed <- health_expenditure %>%
@@ -295,7 +295,7 @@ nrow(fuel_expenditure_transformed)
 nrow(health_expenditure_transformed)
 ```
 
-We will realize that the number of rows are different for fuel_expenditure_transformed (37) and health_expenditure_transformed (36). This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for Jigawa state. This is an instance where we are face the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state out of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for all datasets and then join them together. Then, we will convert the column **state_names** to row names for labeling the cluster leafs to be more meaningful. The code to achieve that is as follows;
+We will realize that the number of rows are different for fuel_expenditure_transformed (37) and health_expenditure_transformed (36). This is a common occurrence in data exploration and preparation. There is a state without data in health_expenditure_transformed. If we are to inspect the data, we will realize that there is no record for Jigawa state. This is an instance where we face the decision of either employing a data imputation method to provide values for Jigasaw or leaving it out altogether. We will tackle data imputation in a different post. For now, the better choice will be to leave Jigawa state out of the analysis. So we will remove the row for Jigawa state in fuel_expenditure_transformed in order to have 36 rows for both datasets and join them together. Then, we will convert the column **"state_names"** to row names for labeling the cluster leafs to be more meaningful. The code to achieve that is as follows;
 
 ```{r data-join}
 dataset_all <- subset.data.frame(fuel_expenditure_transformed, fuel_expenditure_transformed$state != 17) %>%
@@ -310,9 +310,9 @@ Now our data is ready for analysis!. But before then, we have to do clustering r
 
 #### Clustering relevant data preparation
 
-The data preparation done at this stage is not one that we will do for all type of analysis. We are doing them in order to successfully undertake a clustering analysis that is appropriate.
+The data preparation done at this stage is not one that we will do for all types of analysis. We are doing them in order to successfully undertake a clustering analysis that is appropriate.
 
--   Data standardization: Before apply various clustering algorithms, we need to standardize the data to have mean zero and standard deviation one. This is done to make our variables have a common scale hence comparable.
+-   Data standardization: Before applying various clustering algorithms, we need to standardize the data to have mean zero and standard deviation one. This is done to make our variables have a common scale hence comparable.
 
 -   Computation of dissimilarity measure: This is done to identify observations that belong to the same clusters.
 
@@ -340,7 +340,7 @@ hcl_complete<-  hclust(dataset_dissimilarity, method = "complete")
 plot(hcl_complete, cex = 0.6, hang = -1) 
 ```
 
-Using agnes function gives us the agglomerative co-efficent (ac) which measures the strength of clustering. The higher the ac, the stronger the clustering structure.
+Using agnes() function gives us the agglomerative co-efficient (ac) which measures the strength of clustering. The higher the ac, the stronger the clustering structure.
 
 ```{r agnes-comp}
 ## agnes clustering
@@ -379,7 +379,7 @@ plot(hclust_centriod, cex = 0.6, hang = -1)
 
 
 ## Divisive clustering 
-Divisive clustering does not require a method argument to be specified. let's analyze the data using diana()
+Divisive clustering does not require a method argument to be specified. let's analyze the data using diana() function.
 
 ```{r divisive-hcl}
 #### divisive clustering
@@ -394,9 +394,13 @@ pltree(divisive_cluster, cex = 0.6, hang = .2, main = "Dendrogram of diana")
 divisive_cluster$dc
 ```
 
+The divisive co-efficient (dc) is computed to be 0.85 which indicates strong clustering structure.
+The ac and dc are measured on a scale of 0 to 1 with lower values close to 0 indicating weak clustering and higher values close to 1 indicating strong cluster structure.
+
+
 #### Identifying clusters of subgroups
 
-We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. let's cut our observation into 5 clusters with the code below. This can be done for both agnes and divise
+We can identify observations that falls into similar groups or otherwise by stating the number of groups we want to cut into. let's cut our observations into 5 clusters with the code below. This can be done for both agnes and divise
 
 ```{r cut-grp}
 # CUT TREE INTO 5 GROUPS
@@ -411,16 +415,18 @@ dataset_all_cluster <- dataset_all%>%
   head()
 ```
 
-We can visualize how the various state are grouped when we cut into 5 clusters using the code below
+We can visualize how the various states are grouped when we cut into 5 clusters using the code below
 
 ```{r viz-clust}
 ## visualize with fviz_cluster
 fviz_cluster(list(data = dataset_all_scaled, cluster = hcl_complete_group))
 ```
 
+
+
 #### Comparing dendrograms
 
-We can compare the various clustering for different methods by creating dendrogram objects for them and plotting to compare
+We can compare clustering based on different methods by creating dendrogram objects for them and plotting.
 
 ```{r tangle-plot}
 ### create dendrogram object
@@ -431,7 +437,9 @@ agnes_ward_dendrogram <- as.dendrogram(agnes_ward)
 tanglegram(agnes_complete_dendrogram, agnes_ward_dendrogram)
 ```
 
-The dashed lines shows cluster combinations different from those in the other trees.
+The dashed lines show cluster combinations different from others. 
+
+
 
 #### Customizing the dendrogram
 
@@ -460,7 +468,8 @@ agnes_complete_dendrogram
  
 ```
 
-We have added entanglement co-efficient to the graph. It measures how well align the trees are on a scale of 1 to 0. The low co-oefficient of 0.17 indicates least entanglement with good alignment.
+We have added entanglement co-efficient to the graph. It measures how well-align the trees are on a scale of 0 to 1. The low co-oefficient of 0.17 indicates low entanglement with good alignment.
+
 
 
 ## Determining optimal number of clusters
